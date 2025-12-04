@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TITAN FIT 2030 | Neural Interface</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* 2030 Neon Palette */
+            --bg-deep: #020205;
+            --bg-panel: rgba(10, 20, 40, 0.65);
+            --glass-border: rgba(0, 243, 255, 0.2);
+            
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #0aff60;
+            --neon-red: #ff003c;
+            --neon-gold: #ffd700;
+            
+            --text-main: #e0e6ed;
+            --text-dim: #5c6b7f;
+            
+            --font-head: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+            --font-code: 'Share Tech Mono', monospace;
+
+            --ease-tech: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- CYBER GRID BACKGROUND --- */
+        .cyber-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg);
+            transform-origin: center top;
+            animation: gridMove 10s linear infinite;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        .vignette {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            background: radial-gradient(circle, transparent 40%, #000 100%);
+        }
+
+        @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 40px; } }
+
+        /* --- INTRO SEQUENCE --- */
+        #intro-layer {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: var(--font-code); color: var(--neon-blue);
+        }
+        
+        .loader-ring {
+            width: 100px; height: 100px; border: 2px solid rgba(0, 243, 255, 0.2); border-radius: 50%;
+            border-top-color: var(--neon-blue); animation: spin 1s linear infinite;
+            margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+        
+        .glitch-text {
+            font-size: 2rem; font-weight: 700; letter-spacing: 4px;
+            position: relative; animation: glitch 2s infinite;
+            text-shadow: 2px 0 var(--neon-purple), -2px 0 var(--neon-blue);
+        }
+        
+        .scan-line {
+            width: 100%; height: 2px; background: var(--neon-green);
+            position: absolute; top: 0; animation: scanDown 2s linear infinite;
+            opacity: 0.5; box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* --- APP FRAME --- */
+        #app-frame { 
+            width: 100%; height: 100%; max-width: 500px; z-index: 10;
+            position: relative; display: flex; flex-direction: column; overflow: hidden;
+            opacity: 0; transition: opacity 1s ease;
+        }
+        #app-frame.loaded { opacity: 1; }
+
+        @media(min-width: 500px) { 
+            #app-frame { 
+                height: 95vh; margin-top: 2.5vh;
+                border: 1px solid var(--glass-border);
+                box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
+                background: rgba(2, 2, 5, 0.85);
+                clip-path: polygon(
+                    0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%
+                );
+            } 
+        }
+
+        /* --- HEADER --- */
+        header { padding: 20px; border-bottom: 1px solid var(--glass-border); background: linear-gradient(180deg, rgba(0,243,255,0.05), transparent); display: flex; justify-content: space-between; align-items: flex-end; }
+        
+        .brand { font-family: var(--font-head); font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px var(--neon-blue); display: flex; align-items: center; gap: 10px; }
+        .brand span { color: var(--neon-blue); }
+        
+        .status-module { font-family: var(--font-code); text-align: right; font-size: 0.7rem; color: var(--neon-green); }
+        .status-dot { display: inline-block; width: 6px; height: 6px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 8px var(--neon-green); margin-right: 4px; animation: blink 2s infinite; }
+
+        /* --- STREAK HUD --- */
+        .hud-streak {
+            margin: 20px; padding: 15px;
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.05), transparent);
+            border-left: 2px solid var(--neon-blue);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hud-label { font-family: var(--font-code); color: var(--neon-blue); font-size: 0.8rem; letter-spacing: 1px; }
+        .hud-val { font-family: var(--font-head); font-size: 2rem; color: #fff; line-height: 1; text-shadow: 0 0 15px var(--neon-blue); }
+
+        /* --- VIEWPORT --- */
+        #viewport { flex: 1; overflow-y: auto; padding: 0 20px 100px 20px; scroll-behavior: smooth; }
+        #viewport::-webkit-scrollbar { width: 4px; }
+        #viewport::-webkit-scrollbar-thumb { background: var(--neon-blue); }
+
+        /* --- HOLO CARDS --- */
+        .holo-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--glass-border);
+            padding: 20px; margin-bottom: 15px;
+            position: relative; overflow: hidden;
+            backdrop-filter: blur(10px);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: 0.3s var(--ease-tech);
+        }
+        .holo-card::before {
+            content: ''; position: absolute; top:0; left:0; width: 2px; height: 100%;
+            background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);
+            opacity: 0.5;
+        }
+
+        .section-head {
+            font-family: var(--font-head); font-size: 0.9rem; color: var(--neon-purple);
+            margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
+            text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid rgba(188, 19, 254, 0.2); padding-bottom: 5px;
+        }
+
+        /* --- EXERCISE LIST --- */
+        .ex-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px; margin-bottom: 8px; cursor: pointer;
+            transition: 0.2s; position: relative;
+        }
+        .ex-row:hover { background: rgba(0, 243, 255, 0.05); border-color: var(--neon-blue); transform: translateX(5px); }
+        .ex-row.done { border-color: var(--neon-green); }
+        .ex-row.done::after {
+            content: 'COMPLETE'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            font-family: var(--font-head); font-size: 2rem; color: var(--neon-green); opacity: 0.1; pointer-events: none;
+        }
+
+        .ex-icon-box {
+            width: 40px; height: 40px; display: grid; place-items: center;
+            background: rgba(255,255,255,0.05); color: var(--neon-blue);
+            font-size: 1.2rem; clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%);
+        }
+        .ex-row.done .ex-icon-box { background: rgba(10, 255, 96, 0.1); color: var(--neon-green); }
+
+        .ex-meta h3 { margin: 0; font-size: 1rem; font-weight: 600; letter-spacing: 1px; }
+        .ex-meta p { margin: 2px 0 0; font-family: var(--font-code); color: var(--text-dim); font-size: 0.8rem; }
+
+        /* --- CHART --- */
+        .chart-hex { position: relative; width: 100px; height: 100px; margin: 0 auto; display: grid; place-items: center; }
+        .chart-val { position: absolute; font-family: var(--font-head); font-size: 1.5rem; color: var(--neon-blue); }
+
+        /* --- NAV DOCK --- */
+        .nav-dock {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 70px;
+            background: rgba(5, 10, 20, 0.95); border-top: 1px solid var(--glass-border);
+            display: flex; justify-content: space-around; align-items: center;
+            backdrop-filter: blur(10px); z-index: 50;
+        }
+        .nav-btn {
+            background: none; border: none; color: var(--text-dim);
+            font-family: var(--font-head); font-size: 0.7rem; letter-spacing: 1px;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .nav-btn i { font-size: 1.4rem; transition: 0.3s; }
+        .nav-btn.active { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .nav-btn.active i { transform: translateY(-5px); }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 100;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            width: 85%; background: #050a10; border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); padding: 30px;
+            text-align: center; position: relative;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+        }
+        .cyber-input {
+            width: 100%; background: transparent; border: none; border-bottom: 2px solid #333;
+            color: var(--neon-blue); font-family: var(--font-head); font-size: 3rem; text-align: center;
+            padding: 10px; outline: none; margin: 20px 0; transition: 0.3s;
+        }
+        .cyber-input:focus { border-color: var(--neon-blue); box-shadow: 0 10px 20px -10px rgba(0, 243, 255, 0.2); }
+        
+        .btn-cyber {
+            background: var(--neon-blue); color: #000; border: none; padding: 15px 30px;
+            font-family: var(--font-head); font-weight: 700; cursor: pointer;
+            clip-path: polygon(10px 0, 100% 0, 100% 70%, calc(100% - 10px) 100%, 0 100%, 0 30%);
+            transition: 0.2s;
+        }
+        .btn-cyber:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        /* --- STATS GRID --- */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .stat-cell { 
+            background: rgba(255,255,255,0.03); padding: 15px; border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
+        .stat-cell h4 { margin: 0; font-family: var(--font-code); color: var(--text-dim); font-size: 0.7rem; }
+        .stat-cell div { font-family: var(--font-head); color: #fff; font-size: 1.2rem; margin-top: 5px; }
+
+        /* Util */
+        .hidden { display: none !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @keyframes glitch { 
+            0% { transform: translate(0); } 
+            20% { transform: translate(-2px, 2px); } 
+            40% { transform: translate(-2px, -2px); } 
+            60% { transform: translate(2px, 2px); } 
+            80% { transform: translate(2px, -2px); } 
+            100% { transform: translate(0); }
+        }
+        @keyframes scanDown { 0% { top: -10%; } 100% { top: 110%; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="cyber-grid"></div>
+    <div class="vignette"></div>
+
+    <!-- INTRO SEQUENCE -->
+    <div id="intro-layer">
+        <div class="loader-ring"></div>
+        <div class="glitch-text" id="intro-title">SYSTEM BOOT</div>
+        <div class="scan-line"></div>
+        <div style="margin-top:20px; font-size:0.8rem; letter-spacing:2px; opacity:0.7;">NEURAL SYNC IN PROGRESS...</div>
+    </div>
+
+    <div id="app-frame">
+        
+        <!-- HEADER -->
+        <header>
+            <div class="brand">
+                <i class='bx bxs-chip' style="font-size:1.8rem;"></i>
+                TITAN<span>FIT</span>2030
+            </div>
+            <div class="status-module">
+                <div><span class="status-dot"></span>ONLINE</div>
+                <div id="date-display">OCT 24</div>
+            </div>
+        </header>
+
+        <!-- VIEWPORT -->
+        <div id="viewport">
+
+            <!-- HOME VIEW -->
+            <div id="view-home" class="view-section">
+                
+                <!-- STREAK HUD -->
+                <div class="hud-streak">
+                    <div>
+                        <div class="hud-label">CURRENT STREAK</div>
+                        <div style="font-size:0.7rem; color:var(--text-dim);">CONSISTENCY IS POWER</div>
+                    </div>
+                    <div class="hud-val">
+                        <span id="streak-val">0</span> <i class='bx bxs-flame' style="color:var(--neon-red); font-size:1.5rem;"></i>
+                    </div>
+                </div>
+
+                <!-- PROGRESS MODULE -->
+                <div class="holo-card">
+                    <div class="section-head"><i class='bx bx-data'></i> DAILY ANALYTICS</div>
+                    <div style="display:flex; align-items:center; justify-content:space-around;">
+                        <div class="chart-hex">
+                            <canvas id="progressRing"></canvas>
+                            <div class="chart-val" id="pct-label">0%</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-family:var(--font-code); color:var(--text-dim); font-size:0.8rem;">TASKS COMPLETED</div>
+                            <div style="font-family:var(--font-head); font-size:1.8rem; color:#fff;">
+                                <span id="done-count">0</span><span style="color:var(--text-dim); font-size:1.2rem;">/12</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXERCISE LIST -->
+                <div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; padding:0 20px;">
+                    <span style="font-family:var(--font-code); color:var(--neon-blue);">// PROTOCOL: FULL_BODY</span>
+                    <button onclick="resetDayDebug()" style="background:none; border:1px solid var(--neon-red); color:var(--neon-red); font-family:var(--font-code); padding:2px 8px; cursor:pointer;">RESET</button>
+                </div>
+
+                <div id="exercise-list"></div>
+            </div>
+
+            <!-- PROFILE VIEW -->
+            <div id="view-profile" class="view-section hidden">
+                <div class="hud-streak" style="margin-top:20px; border-left-color:var(--neon-purple);">
+                    <div>
+                        <div class="hud-label" style="color:var(--neon-purple);">USER PROFILE</div>
+                        <div style="font-size:0.7rem; color:var(--text-dim);">ID: SURAJKUMAR_CREATION</div>
+                    </div>
+                    <i class='bx bx-user-circle' style="font-size:2.5rem; color:var(--neon-purple);"></i>
+                </div>
+
+                <div class="holo-card">
+                    <div class="section-head"><i class='bx bx-bar-chart-alt-2'></i> LIFETIME STATS</div>
+                    <div class="stat-grid">
+                        <div class="stat-cell">
+                            <h4>TOTAL REPS</h4>
+                            <div id="total-reps">0</div>
+                        </div>
+                        <div class="stat-cell">
+                            <h4>WORKOUTS</h4>
+                            <div id="total-workouts">0</div>
+                        </div>
+                        <div class="stat-cell">
+                            <h4>CALORIES</h4>
+                            <div id="est-cals" style="color:var(--neon-gold)">0</div>
+                        </div>
+                        <div class="stat-cell">
+                            <h4>LEVEL</h4>
+                            <div id="level-val" style="color:var(--neon-green)">1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="holo-card">
+                    <div class="section-head"><i class='bx bx-history'></i> LOGS</div>
+                    <div id="history-list"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- NAV -->
+        <div class="nav-dock">
+            <button class="nav-btn active" onclick="nav('home', this)">
+                <i class='bx bx-grid-alt'></i> HOME
+            </button>
+            <button class="nav-btn" onclick="nav('profile', this)">
+                <i class='bx bx-fingerprint'></i> DATA
+            </button>
+        </div>
+
+        <!-- MODAL -->
+        <div id="input-modal" class="modal-overlay">
+            <div class="modal-box">
+                <h3 style="color:var(--neon-blue); font-family:var(--font-head); margin:0;" id="modal-title">PUSHUPS</h3>
+                <div style="font-family:var(--font-code); color:var(--text-dim); margin-top:5px;">TARGET: <span id="modal-target">50</span> <span id="modal-unit">REPS</span></div>
+                
+                <input type="number" id="log-input" class="cyber-input" placeholder="00">
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <button class="btn-cyber" style="background:transparent; border:1px solid #333; color:#666;" onclick="closeModal()">CANCEL</button>
+                    <button class="btn-cyber" onclick="saveLog()">CONFIRM</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- TITAN FIT 2030 CORE --- */
+
+        // Audio System
+        const SFX = {
+            ctx: null,
+            init: function() {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            },
+            play: function(type) {
+                if(!this.ctx) this.init();
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                if(type === 'click') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(800, t);
+                    osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+                    gain.gain.setValueAtTime(0.05, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                    osc.start(t); osc.stop(t + 0.1);
+                } else if (type === 'success') {
+                    osc.type = 'sawtooth';
+                    // Futuristic ascending chime
+                    osc.frequency.setValueAtTime(400, t);
+                    osc.frequency.setValueAtTime(600, t + 0.1);
+                    osc.frequency.setValueAtTime(1200, t + 0.2);
+                    gain.gain.setValueAtTime(0.05, t);
+                    gain.gain.linearRampToValueAtTime(0, t + 0.5);
+                    osc.start(t); osc.stop(t + 0.5);
+                }
+            }
+        };
+
+        const EXERCISES = [
+            { id: 'run', title: 'RUNNING', target: 1.5, unit: 'KM', icon: 'bx-run' },
+            { id: 'jacks', title: 'JUMPING JACKS', target: 150, unit: 'REPS', icon: 'bx-accessibility' },
+            { id: 'squat', title: 'SQUATS', target: 50, unit: 'REPS', icon: 'bx-body' },
+            { id: 'push', title: 'PUSH-UPS', target: 50, unit: 'REPS', icon: 'bx-dumbbell' },
+            { id: 'sit', title: 'SIT-UPS', target: 50, unit: 'REPS', icon: 'bx-up-arrow-circle' },
+            { id: 'plank', title: 'PLANK', target: 60, unit: 'SEC', icon: 'bx-timer' },
+            { id: 'mtn', title: 'MTN CLIMBERS', target: 50, unit: 'REPS', icon: 'bx-cycling' },
+            { id: 'knees', title: 'HIGH KNEES', target: 100, unit: 'REPS', icon: 'bx-chevrons-up' },
+            { id: 'box', title: 'SHADOW BOXING', target: 3, unit: 'MIN', icon: 'bx-target-lock' },
+            { id: 'bike', title: 'AIR BIKE', target: 30, unit: 'REPS', icon: 'bx-cycling' },
+            { id: 'twist', title: 'RUSSIAN TWIST', target: 30, unit: 'REPS', icon: 'bx-revision' },
+            { id: 'heel', title: 'HEEL TOUCHES', target: 30, unit: 'REPS', icon: 'bx-footprint' },
+            { id: 'vup', title: 'V-UPS', target: 30, unit: 'REPS', icon: 'bx-up-arrow-alt' }
+        ];
+
+        let state = {
+            streak: 0,
+            lastLog: null,
+            today: {},
+            history: [],
+            totalReps: 0,
+            sessions: 0
+        };
+
+        let activeId = null;
+        let ringChart = null;
+
+        // --- BOOT ---
+        window.onload = () => {
+            // Intro Animation Sequence
+            const title = document.getElementById('intro-title');
+            setTimeout(() => { title.innerText = "LOADING MODULES..." }, 1000);
+            setTimeout(() => { title.innerText = "SURAJKUMAR\nCREATION"; title.style.color = "var(--neon-green)"; }, 2000);
+            setTimeout(() => { 
+                document.getElementById('intro-layer').style.display = 'none';
+                document.getElementById('app-frame').classList.add('loaded');
+                SFX.play('success');
+            }, 3500);
+
+            loadState();
+            checkDate();
+            renderUI();
+            initChart();
+            
+            const now = new Date();
+            document.getElementById('date-display').innerText = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+        };
+
+        function loadState() {
+            const raw = localStorage.getItem('titan_2030_v1');
+            if(raw) state = { ...state, ...JSON.parse(raw) };
+        }
+
+        function saveState() {
+            localStorage.setItem('titan_2030_v1', JSON.stringify(state));
+        }
+
+        function checkDate() {
+            const today = new Date().toDateString();
+            if(state.lastLog !== today) {
+                if(state.lastLog) {
+                    // Archive yesterday
+                    const count = Object.keys(state.today).length;
+                    if(count > 0) {
+                        const pct = Math.floor((count / EXERCISES.length) * 100);
+                        state.history.unshift({ date: state.lastLog, pct: pct });
+                        state.sessions++;
+                    }
+                    // Streak check
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate()-1);
+                    if(state.lastLog !== yesterday.toDateString() && state.streak > 0) state.streak = 0;
+                }
+                state.today = {};
+                state.lastLog = today;
+                saveState();
+            }
+        }
+
+        function renderUI() {
+            document.getElementById('streak-val').innerText = state.streak;
+            
+            // Exercises
+            const list = document.getElementById('exercise-list');
+            list.innerHTML = '';
+            let doneCount = 0;
+            
+            EXERCISES.forEach(ex => {
+                const val = state.today[ex.id] || 0;
+                const done = val >= ex.target;
+                if(done) doneCount++;
+
+                const el = document.createElement('div');
+                el.className = `ex-row ${done ? 'done' : ''}`;
+                el.onclick = () => openModal(ex.id);
+                el.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <div class="ex-icon-box"><i class='bx ${ex.icon}'></i></div>
+                        <div class="ex-meta">
+                            <h3>${ex.title}</h3>
+                            <p>${val} / ${ex.target} ${ex.unit}</p>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+
+            // Update HUD
+            document.getElementById('done-count').innerText = doneCount;
+            const pct = Math.floor((doneCount / EXERCISES.length) * 100);
+            updateChart(pct);
+            document.getElementById('pct-label').innerText = pct + '%';
+            
+            // Stats
+            document.getElementById('total-reps').innerText = state.totalReps.toLocaleString();
+            document.getElementById('total-workouts').innerText = state.sessions;
+            document.getElementById('est-cals').innerText = (state.totalReps * 0.4).toFixed(0);
+            document.getElementById('level-val').innerText = Math.floor(state.sessions / 5) + 1;
+
+            // History
+            const histList = document.getElementById('history-list');
+            histList.innerHTML = '';
+            state.history.slice(0, 5).forEach(h => {
+                const d = new Date(h.date);
+                histList.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1); color:var(--text-dim); font-family:var(--font-code);">
+                        <span>${d.getMonth()+1}/${d.getDate()}</span>
+                        <span style="color:${h.pct >= 100 ? 'var(--neon-green)' : 'var(--neon-blue)'}">${h.pct}% SYNC</span>
+                    </div>
+                `;
+            });
+
+            // Auto Streak
+            if(pct === 100 && !state.todayComplete) {
+                state.todayComplete = true;
+                state.streak++;
+                saveState();
+                renderUI(); // re-render
+                SFX.play('success');
+            }
+        }
+
+        // Modal
+        function openModal(id) {
+            SFX.play('click');
+            activeId = id;
+            const ex = EXERCISES.find(e => e.id === id);
+            document.getElementById('modal-title').innerText = ex.title;
+            document.getElementById('modal-target').innerText = ex.target;
+            document.getElementById('modal-unit').innerText = ex.unit;
+            document.getElementById('log-input').value = state.today[id] || '';
+            document.getElementById('input-modal').style.display = 'flex';
+            document.getElementById('log-input').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('input-modal').style.display = 'none';
+        }
+
+        function saveLog() {
+            const val = parseFloat(document.getElementById('log-input').value);
+            if(!isNaN(val) && activeId) {
+                const old = state.today[activeId] || 0;
+                const diff = val - old;
+                if(diff > 0) state.totalReps += diff;
+                
+                state.today[activeId] = val;
+                const ex = EXERCISES.find(e => e.id === activeId);
+                if(val >= ex.target && old < ex.target) SFX.play('success');
+                else SFX.play('click');
+                
+                saveState();
+                renderUI();
+                closeModal();
+            }
+        }
+
+        function resetDayDebug() {
+            if(confirm('RESET SYSTEM PROTOCOLS?')) {
+                state.today = {};
+                state.todayComplete = false;
+                saveState();
+                renderUI();
+            }
+        }
+
+        // Nav
+        function nav(view, btn) {
+            SFX.play('click');
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + view).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Chart
+        function initChart() {
+            const ctx = document.getElementById('progressRing').getContext('2d');
+            ringChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#00f3ff', 'rgba(0, 243, 255, 0.1)'],
+                        borderWidth: 0,
+                        cutout: '80%'
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    events: [],
+                    plugins: { tooltip: { enabled: false } }
+                }
+            });
+        }
+
+        function updateChart(pct) {
+            if(ringChart) {
+                ringChart.data.datasets[0].data = [pct, 100-pct];
+                ringChart.data.datasets[0].backgroundColor = [
+                    pct === 100 ? '#0aff60' : '#00f3ff', 
+                    'rgba(0, 243, 255, 0.1)'
+                ];
+                ringChart.update();
+            }
+        }
+
+    </script>
+</body>
+</html>
