@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>TITAN FIT 2030 | Neural Interface</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Icons -->
+  <link
+    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg-deep: #020205;
+      --bg-panel: rgba(10, 20, 40, 0.65);
+      --glass-border: rgba(0, 243, 255, 0.2);
+
+      --neon-blue: #00f3ff;
+      --neon-purple: #bc13fe;
+      --neon-green: #0aff60;
+      --neon-red: #ff003c;
+      --neon-gold: #ffd700;
+
+      --text-main: #e0e6ed;
+      --text-dim: #5c6b7f;
+
+      --font-head: "Orbitron", sans-serif;
+      --font-body: "Rajdhani", sans-serif;
+      --font-code: "Share Tech Mono", monospace;
+
+      --ease-tech: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* CYBER GRID BACKGROUND */
+    .cyber-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: linear-gradient(
+          rgba(0, 243, 255, 0.08) 1px,
+          transparent 1px
+        ),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: perspective(600px) rotateX(60deg);
+      transform-origin: center top;
+      animation: gridMove 14s linear infinite;
+      pointer-events: none;
+      opacity: 0.26;
+    }
+
+    .floating-orb {
+      position: fixed;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 243, 255, 0.18), transparent);
+      filter: blur(4px);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 18s ease-in-out infinite alternate;
+    }
+    .floating-orb:nth-child(2) {
+      top: 10%;
+      left: 70%;
+      animation-delay: -4s;
+    }
+    .floating-orb:nth-child(3) {
+      top: 70%;
+      left: 20%;
+      animation-delay: -9s;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(circle, transparent 40%, #000 100%);
+    }
+
+    @keyframes gridMove {
+      from {
+        background-position: 0 0;
+      }
+      to {
+        background-position: 0 60px;
+      }
+    }
+    @keyframes orbFloat {
+      0% {
+        transform: translate3d(-40px, 0, 0) scale(1);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translate3d(60px, -30px, 0) scale(1.2);
+        opacity: 0.9;
+      }
+    }
+
+    /* INTRO */
+    #intro-layer {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #020824 0, #000 60%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-code);
+      color: var(--neon-blue);
+    }
+
+    .loader-ring {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 243, 255, 0.16);
+      border-top-color: var(--neon-blue);
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 22px;
+      box-shadow: 0 0 24px rgba(0, 243, 255, 0.22);
+      position: relative;
+    }
+
+    .loader-ring::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border-radius: 50%;
+      border: 1px dashed rgba(188, 19, 254, 0.4);
+      animation: spin 3s linear infinite reverse;
+    }
+
+    .glitch-text {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      position: relative;
+      animation: glitch 2s infinite;
+      text-align: center;
+      text-shadow: 2px 0 var(--neon-purple), -2px 0 var(--neon-blue);
+      white-space: pre-line;
+    }
+
+    .scan-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--neon-green),
+        transparent
+      );
+      position: absolute;
+      top: 0;
+      animation: scanDown 2.4s linear infinite;
+      opacity: 0.6;
+      box-shadow: 0 0 12px var(--neon-green);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes glitch {
+      0% {
+        transform: translate(0);
+      }
+      20% {
+        transform: translate(-1px, 1px);
+      }
+      40% {
+        transform: translate(-1px, -1px);
+      }
+      60% {
+        transform: translate(1px, 1px);
+      }
+      80% {
+        transform: translate(1px, -1px);
+      }
+      100% {
+        transform: translate(0);
+      }
+    }
+
+    @keyframes scanDown {
+      0% {
+        top: -10%;
+      }
+      100% {
+        top: 110%;
+      }
+    }
+
+    /* APP FRAME */
+    #app-frame {
+      width: 100%;
+      height: 100%;
+      max-width: 520px;
+      z-index: 10;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.9s var(--ease-tech), transform 0.9s var(--ease-tech);
+    }
+    #app-frame.loaded {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (min-width: 520px) {
+      #app-frame {
+        height: 96vh;
+        margin-top: 2vh;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 0 50px rgba(0, 243, 255, 0.18);
+        background: rgba(2, 2, 5, 0.9);
+        clip-path: polygon(
+          0 0,
+          100% 0,
+          100% calc(100% - 30px),
+          calc(100% - 30px) 100%,
+          0 100%
+        );
+      }
+    }
+
+    /* HEADER */
+    header {
+      padding: 16px 18px 14px 18px;
+      border-bottom: 1px solid var(--glass-border);
+      background: linear-gradient(
+        180deg,
+        rgba(0, 243, 255, 0.12),
+        transparent
+      );
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .brand {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 0 10px var(--neon-blue);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand span {
+      color: var(--neon-blue);
+    }
+
+    .status-module {
+      font-family: var(--font-code);
+      text-align: right;
+      font-size: 0.68rem;
+      color: var(--neon-green);
+    }
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--neon-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--neon-green);
+      margin-right: 4px;
+      animation: blink 2s infinite;
+    }
+    .user-greeting {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    @keyframes blink {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* STREAK HUD */
+    .hud-streak {
+      margin: 16px 18px 12px 18px;
+      padding: 12px 14px;
+      background: linear-gradient(
+        90deg,
+        rgba(0, 243, 255, 0.12),
+        transparent
+      );
+      border-left: 2px solid var(--neon-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hud-streak::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        125deg,
+        rgba(0, 243, 255, 0.25),
+        transparent
+      );
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-tech);
+    }
+    .hud-streak:hover::after {
+      opacity: 0.8;
+    }
+
+    .hud-label {
+      font-family: var(--font-code);
+      color: var(--neon-blue);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .hud-val {
+      font-family: var(--font-head);
+      font-size: 2.1rem;
+      color: #fff;
+      line-height: 1;
+      text-shadow: 0 0 15px var(--neon-blue);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* VIEWPORT */
+    #viewport {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 18px 84px 18px;
+      scroll-behavior: smooth;
+    }
+    #viewport::-webkit-scrollbar {
+      width: 4px;
+    }
+    #viewport::-webkit-scrollbar-thumb {
+      background: var(--neon-blue);
+    }
+
+    /* HOLO CARDS */
+    .holo-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--glass-border);
+      padding: 16px 16px 14px 16px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+      border-radius: 12px;
+      transition: transform 0.25s var(--ease-tech),
+        box-shadow 0.25s var(--ease-tech),
+        border-color 0.25s var(--ease-tech),
+        background 0.25s var(--ease-tech);
+    }
+
+    .holo-card::before {
+      content: "";
+      position: absolute;
+      top: -120%;
+      left: -40%;
+      width: 60%;
+      height: 300%;
+      background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(188, 19, 254, 0.5),
+        transparent
+      );
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(8deg);
+      transition: opacity 0.4s var(--ease-tech);
+      pointer-events: none;
+    }
+
+    .holo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 26px rgba(0, 243, 255, 0.3);
+      border-color: rgba(0, 243, 255, 0.6);
+      background: rgba(7, 15, 30, 0.96);
+    }
+    .holo-card:hover::before {
+      opacity: 1;
+      animation: sweep 1.2s linear infinite;
+    }
+
+    @keyframes sweep {
+      0% {
+        transform: translate3d(-40%, 0, 0) rotate(8deg);
+      }
+      100% {
+        transform: translate3d(140%, 0, 0) rotate(8deg);
+      }
+    }
+
+    .section-head {
+      font-family: var(--font-head);
+      font-size: 0.88rem;
+      color: var(--neon-purple);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(188, 19, 254, 0.2);
+      padding-bottom: 6px;
+    }
+
+    .section-head i {
+      font-size: 1.1rem;
+    }
+
+    /* EXERCISE LIST */
+    .ex-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 11px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: 0.22s var(--ease-tech);
+      position: relative;
+      border-radius: 10px;
+    }
+    .ex-row:hover {
+      background: rgba(0, 243, 255, 0.05);
+      border-color: var(--neon-blue);
+      transform: translateX(5px);
+    }
+    .ex-row.done {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 15px rgba(10, 255, 96, 0.25);
+    }
+    .ex-row.done::after {
+      content: "COMPLETE";
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      color: var(--neon-green);
+      opacity: 0.06;
+      pointer-events: none;
+      letter-spacing: 3px;
+    }
+
+    .ex-icon-box {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--neon-blue);
+      font-size: 1.3rem;
+      clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%);
+    }
+    .ex-row.done .ex-icon-box {
+      background: rgba(10, 255, 96, 0.18);
+      color: var(--neon-green);
+    }
+
+    .ex-meta h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .ex-meta p {
+      margin: 2px 0 0;
+      font-family: var(--font-code);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+
+    /* CHART */
+    .chart-hex {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 4px 0;
+      display: grid;
+      place-items: center;
+    }
+    .chart-val {
+      position: absolute;
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      color: var(--neon-blue);
+    }
+
+    /* NAV DOCK */
+    .nav-dock {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 72px;
+      background: rgba(5, 10, 20, 0.98);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      z-index: 50;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: 0.22s var(--ease-tech);
+      padding: 4px 6px;
+    }
+    .nav-btn i {
+      font-size: 1.4rem;
+      transition: 0.25s var(--ease-tech);
+    }
+    .nav-btn.active {
+      color: var(--neon-blue);
+      text-shadow: 0 0 10px var(--neon-blue);
+    }
+    .nav-btn.active i {
+      transform: translateY(-5px) scale(1.06);
+    }
+    .nav-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+    .modal-box {
+      width: 86%;
+      max-width: 420px;
+      background: #050a10;
+      border: 1px solid var(--neon-blue);
+      box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+      padding: 22px 20px 18px 20px;
+      text-align: center;
+      position: relative;
+      border-radius: 14px;
+    }
+
+    .modal-title-main {
+      color: var(--neon-blue);
+      font-family: var(--font-head);
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+
+    .cyber-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid #333;
+      color: var(--neon-blue);
+      font-family: var(--font-head);
+      font-size: 2.1rem;
+      text-align: center;
+      padding: 10px 4px;
+      outline: none;
+      margin: 18px 0 14px 0;
+      transition: 0.3s;
+    }
+    .cyber-input:focus {
+      border-color: var(--neon-blue);
+      box-shadow: 0 10px 20px -10px rgba(0, 243, 255, 0.3);
+    }
+
+    .input-small {
+      font-size: 0.88rem;
+      text-align: left;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 6px;
+    }
+
+    .input-small:focus {
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 12px rgba(188, 19, 254, 0.4);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-cyber {
+      background: var(--neon-blue);
+      color: #000;
+      border: none;
+      padding: 10px 10px;
+      font-family: var(--font-head);
+      font-weight: 700;
+      cursor: pointer;
+      clip-path: polygon(
+        10px 0,
+        100% 0,
+        100% 70%,
+        calc(100% - 10px) 100%,
+        0 100%,
+        0 30%
+      );
+      transition: 0.18s;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    .btn-cyber:hover {
+      box-shadow: 0 0 18px #fff;
+      background: #fff;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid #444;
+      color: #777;
+    }
+    .btn-ghost:hover {
+      background: #111;
+      color: #ccc;
+      box-shadow: none;
+    }
+
+    /* STATS GRID */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .stat-cell {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: center;
+      border-radius: 10px;
+    }
+    .stat-cell h4 {
+      margin: 0;
+      font-family: var(--font-code);
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .stat-cell div {
+      font-family: var(--font-head);
+      color: #fff;
+      font-size: 1.15rem;
+      margin-top: 6px;
+    }
+
+    /* TODAY SUMMARY */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin: 3px 0;
+    }
+    .summary-row span:nth-child(2) {
+      color: var(--neon-gold);
+    }
+
+    /* UTIL */
+    .view-section.hidden {
+      display: none !important;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- BACKGROUND -->
+  <div class="cyber-grid"></div>
+  <div class="floating-orb" style="top:25%;left:10%;"></div>
+  <div class="floating-orb" style="top:60%;left:70%;"></div>
+  <div class="vignette"></div>
+
+  <!-- INTRO -->
+  <div id="intro-layer">
+    <div class="loader-ring"></div>
+    <div class="glitch-text" id="intro-title">SYSTEM REBOOT</div>
+    <div class="scan-line"></div>
+    <div
+      style="
+        margin-top: 22px;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        opacity: 0.78;
+      "
+    >
+      RE-ESTABLISHING UPLINK...
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app-frame">
+    <!-- HEADER -->
+    <header>
+      <div class="brand">
+        <i class="bx bxs-chip" style="font-size: 1.7rem"></i>
+        TITAN<span>FIT</span>2030
+      </div>
+      <div class="status-module">
+        <div><span class="status-dot"></span>ONLINE</div>
+        <div id="date-display">--/-- --:--</div>
+        <div class="user-greeting" id="user-greeting">
+          HELLO, PILOT.
+        </div>
+      </div>
+    </header>
+
+    <!-- VIEWPORT -->
+    <div id="viewport">
+      <!-- HOME VIEW -->
+      <div id="view-home" class="view-section">
+        <!-- STREAK HUD -->
+        <div class="hud-streak">
+          <div>
+            <div class="hud-label">CURRENT STREAK</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim)">
+              CONSISTENCY IS POWER
+            </div>
+          </div>
+          <div class="hud-val">
+            <span id="streak-val">0</span>
+            <i
+              class="bx bxs-flame"
+              style="color: var(--neon-red); font-size: 1.6rem"
+            ></i>
+          </div>
+        </div>
+
+        <!-- PROGRESS MODULE -->
+        <div class="holo-card">
+          <div class="section-head">
+            <i class="bx bx-data"></i> DAILY ANALYTICS
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 10px;
+            "
+          >
+            <div class="chart-hex">
+              <canvas id="progressRing"></canvas>
+              <div class="chart-val" id="pct-label">0%</div>
+            </div>
+            <div style="flex: 1; text-align: right">
+              <div
+                style="
+                  font-family: var(--font-code);
+                  color: var(--text-dim);
+                  font-size: 0.78rem;
+                "
+              >
+                TASKS COMPLETED
+              </div>
+              <div
+                style="
+                  font-family: var(--font-head);
+                  font-size: 1.7rem;
+                  color: #fff;
+                "
+              >
+                <span id="done-count">0</span
+                ><span
+                  style="
+                    color: var(--text-dim);
+                    font-size: 1.1rem;
+                    margin-left: 2px;
+                  "
+                  >/13</span
+                >
+              </div>
+              <div
+                style="
+                  margin-top: 6px;
+                  font-family: var(--font-code);
+                  font-size: 0.72rem;
+                  color: var(--neon-gold);
+                "
+              >
+                DAILY GOAL:
+                <span id="goal-label">100%</span> SYNC
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TODAY SUMMARY -->
+        <div class="holo-card">
+          <div class="section-head">
+            <i class="bx bx-sun"></i> TODAY SUMMARY
+          </div>
+          <div id="summary-container">
+            <div class="summary-row">
+              <span>EST. ACTIVE TIME</span>
+              <span id="summary-active">0 min</span>
+            </div>
+            <div class="summary-row">
+              <span>EST. CALORIES</span>
+              <span id="summary-cal">0 kcal</span>
+            </div>
+            <div class="summary-row">
+              <span>EXERCISES COMPLETED</span>
+              <span id="summary-complete">0 / 13</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXERCISE LIST HEADER -->
+        <div
+          style="
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2px;
+          "
+        >
+          <span
+            style="
+              font-family: var(--font-code);
+              color: var(--neon-blue);
+              font-size: 0.78rem;
+            "
+          >
+            // PROTOCOL: FULL_BODY + CORE
+          </span>
+          <button
+            onclick="resetDayDebug()"
+            style="
+              background: none;
+              border: 1px solid var(--neon-red);
+              color: var(--neon-red);
+              font-family: var(--font-code);
+              padding: 2px 8px;
+              cursor: pointer;
+              font-size: 0.7rem;
+              border-radius: 6px;
+            "
+          >
+            RESET DAY
+          </button>
+        </div>
+
+        <!-- EXERCISE LIST -->
+        <div id="exercise-list"></div>
+      </div>
+
+      <!-- PROFILE VIEW -->
+      <div id="view-profile" class="view-section hidden">
+        <div
+          class="hud-streak"
+          style="
+            margin-top: 16px;
+            border-left-color: var(--neon-purple);
+            margin-bottom: 14px;
+          "
+        >
+          <div>
+            <div
+              class="hud-label"
+              style="color: var(--neon-purple); font-size: 0.82rem"
+            >
+              USER PROFILE
+            </div>
+            <div
+              id="profile-id"
+              style="font-size: 0.72rem; color: var(--text-dim)"
+            >
+              ID: PILOT_001
+            </div>
+          </div>
+          <i
+            class="bx bx-user-circle"
+            style="font-size: 2.3rem; color: var(--neon-purple)"
+          ></i>
+        </div>
+
+        <div class="holo-card">
+          <div class="section-head">
+            <i class="bx bx-bar-chart-alt-2"></i> LIFETIME STATS
+          </div>
+          <div class="stat-grid">
+            <div class="stat-cell">
+              <h4>TOTAL REPS</h4>
+              <div id="total-reps">0</div>
+            </div>
+            <div class="stat-cell">
+              <h4>WORKOUT SESSIONS</h4>
+              <div id="total-workouts">0</div>
+            </div>
+            <div class="stat-cell">
+              <h4>EST. CALORIES</h4>
+              <div id="est-cals" style="color: var(--neon-gold)">0</div>
+            </div>
+            <div class="stat-cell">
+              <h4>LEVEL</h4>
+              <div id="level-val" style="color: var(--neon-green)">1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="holo-card">
+          <div class="section-head">
+            <i class="bx bx-history"></i> LAST 5 DAYS
+          </div>
+          <div id="history-list"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS VIEW -->
+      <div id="view-settings" class="view-section hidden">
+        <div class="holo-card" style="margin-top: 16px">
+          <div class="section-head">
+            <i class="bx bx-cog"></i> PILOT SETTINGS
+          </div>
+          <div style="font-family: var(--font-code); font-size: 0.76rem">
+            Personalise your TITAN FIT interface. Data is stored
+            <span style="color: var(--neon-green)">locally</span> in this
+            device.
+          </div>
+
+          <div style="margin-top: 12px">
+            <label
+              style="
+                font-family: var(--font-code);
+                font-size: 0.76rem;
+                color: var(--text-dim);
+              "
+              >CALLSIGN (NAME)</label
+            >
+            <input
+              id="settings-name"
+              class="input-small"
+              placeholder="e.g. SURAJKUMAR"
+            />
+          </div>
+
+          <div style="margin-top: 10px">
+            <label
+              style="
+                font-family: var(--font-code);
+                font-size: 0.76rem;
+                color: var(--text-dim);
+              "
+              >DAILY GOAL (% SYNC)</label
+            >
+            <input
+              id="settings-goal"
+              type="number"
+              class="input-small"
+              placeholder="100"
+              min="10"
+              max="150"
+            />
+          </div>
+
+          <button
+            class="btn-cyber"
+            style="margin-top: 14px; width: 100%"
+            onclick="saveSettings()"
+          >
+            SAVE SETTINGS
+          </button>
+        </div>
+
+        <div class="holo-card">
+          <div class="section-head">
+            <i class="bx bx-info-circle"></i> ABOUT
+          </div>
+          <div
+            style="
+              font-family: var(--font-code);
+              font-size: 0.76rem;
+              color: var(--text-dim);
+              line-height: 1.4;
+            "
+          >
+            TITAN FIT 2030 is an offline-first neural workout dashboard. Your
+            logs, streak, and profile are stored in
+            <span style="color: var(--neon-blue)">localStorage</span>, so every
+            day you open this app, your progress continues from where you left
+            off.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="nav-dock">
+      <button class="nav-btn active" onclick="nav('home', this)">
+        <i class="bx bx-grid-alt"></i>
+        HOME
+      </button>
+      <button class="nav-btn" onclick="nav('profile', this)">
+        <i class="bx bx-fingerprint"></i>
+        DATA
+      </button>
+      <button class="nav-btn" onclick="nav('settings', this)">
+        <i class="bx bx-cog"></i>
+        SETTINGS
+      </button>
+    </div>
+
+    <!-- EXERCISE MODAL -->
+    <div id="input-modal" class="modal-overlay">
+      <div class="modal-box">
+        <h3 class="modal-title-main" id="modal-title">PUSHUPS</h3>
+        <div
+          style="
+            font-family: var(--font-code);
+            color: var(--text-dim);
+            margin-top: 6px;
+            font-size: 0.8rem;
+          "
+        >
+          TARGET:
+          <span id="modal-target">50</span>
+          <span id="modal-unit">REPS</span>
+        </div>
+
+        <input
+          type="number"
+          id="log-input"
+          class="cyber-input"
+          placeholder="00"
+        />
+
+        <div class="btn-row">
+          <button class="btn-cyber btn-ghost" onclick="closeModal()">
+            CANCEL
+          </button>
+          <button class="btn-cyber" onclick="saveLog()">CONFIRM</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ------------- TITAN FIT 2030 CORE ------------- */
+
+    // Simple Audio SFX
+    const SFX = {
+      ctx: null,
+      init: function () {
+        window.AudioContext =
+          window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContext();
+      },
+      play: function (type) {
+        try {
+          if (!this.ctx) this.init();
+          const t = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          if (type === "click") {
+            osc.type = "square";
+            osc.frequency.setValueAtTime(800, t);
+            osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+            gain.gain.setValueAtTime(0.05, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+            osc.start(t);
+            osc.stop(t + 0.1);
+          } else if (type === "success") {
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(400, t);
+            osc.frequency.setValueAtTime(800, t + 0.1);
+            osc.frequency.setValueAtTime(1200, t + 0.22);
+            gain.gain.setValueAtTime(0.06, t);
+            gain.gain.linearRampToValueAtTime(0, t + 0.4);
+            osc.start(t);
+            osc.stop(t + 0.45);
+          }
+        } catch (e) {
+          // audio not critical, ignore
+        }
+      },
+    };
+
+    // EXERCISE DEFINITIONS
+    const EXERCISES = [
+      { id: "run", title: "RUNNING", target: 1.5, unit: "KM", icon: "bx-run" },
+      {
+        id: "jacks",
+        title: "JUMPING JACKS",
+        target: 150,
+        unit: "REPS",
+        icon: "bx-accessibility",
+      },
+      {
+        id: "squat",
+        title: "SQUATS",
+        target: 50,
+        unit: "REPS",
+        icon: "bx-body",
+      },
+      {
+        id: "push",
+        title: "PUSH-UPS",
+        target: 50,
+        unit: "REPS",
+        icon: "bx-dumbbell",
+      },
+      {
+        id: "sit",
+        title: "SIT-UPS",
+        target: 50,
+        unit: "REPS",
+        icon: "bx-up-arrow-circle",
+      },
+      {
+        id: "plank",
+        title: "PLANK",
+        target: 60,
+        unit: "SEC",
+        icon: "bx-timer",
+      },
+      {
+        id: "mtn",
+        title: "MTN CLIMBERS",
+        target: 50,
+        unit: "REPS",
+        icon: "bx-cycling",
+      },
+      {
+        id: "knees",
+        title: "HIGH KNEES",
+        target: 100,
+        unit: "REPS",
+        icon: "bx-chevrons-up",
+      },
+      {
+        id: "box",
+        title: "SHADOW BOXING",
+        target: 3,
+        unit: "MIN",
+        icon: "bx-target-lock",
+      },
+      {
+        id: "bike",
+        title: "AIR BIKE",
+        target: 30,
+        unit: "REPS",
+        icon: "bx-cycling",
+      },
+      {
+        id: "twist",
+        title: "RUSSIAN TWIST",
+        target: 30,
+        unit: "REPS",
+        icon: "bx-revision",
+      },
+      {
+        id: "heel",
+        title: "HEEL TOUCHES",
+        target: 30,
+        unit: "REPS",
+        icon: "bx-footprint",
+      },
+      {
+        id: "vup",
+        title: "V-UPS",
+        target: 30,
+        unit: "REPS",
+        icon: "bx-up-arrow-alt",
+      },
+    ];
+
+    let state = {
+      streak: 0,
+      lastLog: null,
+      today: {},
+      history: [],
+      totalReps: 0,
+      sessions: 0,
+      todayComplete: false,
+      profile: {
+        name: "",
+        goalPct: 100,
+      },
+    };
+
+    let activeId = null;
+    let ringChart = null;
+
+    // BOOT
+    window.onload = () => {
+      // intro text sequence
+      const title = document.getElementById("intro-title");
+      setTimeout(
+        () => (title.innerText = "LOADING MODULES..."),
+        1100
+      );
+      setTimeout(() => {
+        title.innerText = "TITAN FIT\n2030 ONLINE";
+        title.style.color = "var(--neon-green)";
+      }, 2100);
+      setTimeout(() => {
+        document.getElementById("intro-layer").style.display = "none";
+        document.getElementById("app-frame").classList.add("loaded");
+        SFX.play("success");
+      }, 3600);
+
+      loadState();
+      checkDate();
+      initChart();
+      renderUI();
+
+      const now = new Date();
+      const timeStr =
+        String(now.getMonth() + 1).padStart(2, "0") +
+        "/" +
+        String(now.getDate()).padStart(2, "0") +
+        " " +
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("date-display").innerText = timeStr;
+    };
+
+    // STATE HANDLING
+    function loadState() {
+      try {
+        const raw = localStorage.getItem("titan_2030_v2");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = { ...state, ...parsed };
+        }
+      } catch (e) {
+        console.warn("Failed to load state", e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem("titan_2030_v2", JSON.stringify(state));
+      } catch (e) {
+        console.warn("Failed to save state", e);
+      }
+    }
+
+    function checkDate() {
+      const todayStr = new Date().toDateString();
+
+      if (state.lastLog !== todayStr) {
+        if (state.lastLog) {
+          const count = Object.keys(state.today).filter((k) => {
+            const ex = EXERCISES.find((e) => e.id === k);
+            return ex && state.today[k] >= ex.target;
+          }).length;
+
+          if (count > 0) {
+            const pct = Math.floor((count / EXERCISES.length) * 100);
+            state.history.unshift({ date: state.lastLog, pct });
+            state.sessions++;
+          }
+
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          if (
+            state.lastLog !== yesterday.toDateString() &&
+            state.streak > 0
+          ) {
+            state.streak = 0;
+          }
+        }
+
+        state.today = {};
+        state.todayComplete = false;
+        state.lastLog = todayStr;
+        saveState();
+      }
+    }
+
+    // RENDER
+    function renderUI() {
+      // greeting
+      const name = state.profile.name || "PILOT";
+      document.getElementById(
+        "user-greeting"
+      ).innerText = `HELLO, ${name.toUpperCase()}.`;
+      document.getElementById(
+        "profile-id"
+      ).innerText = `ID: ${name ? name.toUpperCase() : "PILOT"}_2030`;
+
+      document.getElementById("streak-val").innerText = state.streak;
+
+      const list = document.getElementById("exercise-list");
+      list.innerHTML = "";
+      let doneCount = 0;
+      let totalTodayReps = 0;
+
+      EXERCISES.forEach((ex) => {
+        const val = state.today[ex.id] || 0;
+        const done = val >= ex.target;
+        if (done) doneCount++;
+
+        const el = document.createElement("div");
+        el.className = `ex-row ${done ? "done" : ""}`;
+        el.onclick = () => openModal(ex.id);
+        el.innerHTML = `
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div class="ex-icon-box"><i class='bx ${ex.icon}'></i></div>
+            <div class="ex-meta">
+              <h3>${ex.title}</h3>
+              <p>${val} / ${ex.target} ${ex.unit}</p>
+            </div>
+          </div>
+          <div style="font-family:var(--font-code); font-size:0.75rem; color:${
+            done ? "var(--neon-green)" : "var(--text-dim)"
+          };">
+            ${done ? "SYNCED" : "LOG"}
+          </div>
+        `;
+        list.appendChild(el);
+
+        // estimate "reps" equivalence for today
+        if (ex.unit === "KM") totalTodayReps += val * 120;
+        else if (ex.unit === "MIN") totalTodayReps += val * 20;
+        else if (ex.unit === "SEC") totalTodayReps += val * (50 / 60);
+        else totalTodayReps += val;
+      });
+
+      document.getElementById("done-count").innerText = doneCount;
+      const pct = Math.floor((doneCount / EXERCISES.length) * 100);
+      const goal = state.profile.goalPct || 100;
+      updateChart(Math.min(pct, 150));
+
+      document.getElementById("pct-label").innerText = pct + "%";
+      document.getElementById("goal-label").innerText = goal + "%";
+
+      // today summary estimates
+      const estMinutes = (totalTodayReps / 20).toFixed(0);
+      const estCal = (totalTodayReps * 0.4).toFixed(0);
+      document.getElementById(
+        "summary-active"
+      ).innerText = `${estMinutes} min`;
+      document.getElementById("summary-cal").innerText = `${estCal} kcal`;
+      document.getElementById(
+        "summary-complete"
+      ).innerText = `${doneCount} / ${EXERCISES.length}`;
+
+      // lifetime stats
+      document.getElementById("total-reps").innerText =
+        state.totalReps.toLocaleString();
+      document.getElementById("total-workouts").innerText = state.sessions;
+      document.getElementById("est-cals").innerText = (
+        state.totalReps * 0.4
+      ).toFixed(0);
+      document.getElementById("level-val").innerText =
+        Math.floor(state.sessions / 5) + 1;
+
+      // history
+      const histList = document.getElementById("history-list");
+      histList.innerHTML = "";
+      if (state.history.length === 0) {
+        histList.innerHTML =
+          "<div style='font-family:var(--font-code); font-size:0.78rem; color:var(--text-dim);'>No history yet. Complete at least one protocol day.</div>";
+      } else {
+        state.history.slice(0, 5).forEach((h) => {
+          const d = new Date(h.date);
+          const dateLabel = `${d.getMonth() + 1}/${d.getDate()}`;
+          const color =
+            h.pct >= (state.profile.goalPct || 100)
+              ? "var(--neon-green)"
+              : "var(--neon-blue)";
+          histList.innerHTML += `
+            <div style="display:flex; justify-content:space-between; padding:8px 4px; border-bottom:1px solid rgba(255,255,255,0.08); color:var(--text-dim); font-family:var(--font-code); font-size:0.78rem;">
+              <span>${dateLabel}</span>
+              <span style="color:${color}">${h.pct}% SYNC</span>
+            </div>
+          `;
+        });
+      }
+
+      // auto streak increment if all done
+      if (pct === 100 && !state.todayComplete) {
+        state.todayComplete = true;
+        state.streak++;
+        saveState();
+        SFX.play("success");
+      }
+
+      // settings inputs
+      document.getElementById("settings-name").value =
+        state.profile.name || "";
+      document.getElementById("settings-goal").value =
+        state.profile.goalPct || 100;
+    }
+
+    // MODAL
+    function openModal(id) {
+      SFX.play("click");
+      activeId = id;
+      const ex = EXERCISES.find((e) => e.id === id);
+      if (!ex) return;
+
+      document.getElementById("modal-title").innerText = ex.title;
+      document.getElementById("modal-target").innerText = ex.target;
+      document.getElementById("modal-unit").innerText = ex.unit;
+      document.getElementById("log-input").value = state.today[id] || "";
+      document.getElementById("input-modal").style.display = "flex";
+      document.getElementById("log-input").focus();
+    }
+
+    function closeModal() {
+      document.getElementById("input-modal").style.display = "none";
+      activeId = null;
+    }
+
+    function saveLog() {
+      const raw = document.getElementById("log-input").value;
+      const val = parseFloat(raw);
+      if (isNaN(val) || !activeId) {
+        closeModal();
+        return;
+      }
+
+      const oldVal = state.today[activeId] || 0;
+      const diff = val - oldVal;
+      if (diff > 0) state.totalReps += diff;
+
+      state.today[activeId] = val;
+      const ex = EXERCISES.find((e) => e.id === activeId);
+      if (ex && val >= ex.target && oldVal < ex.target) {
+        SFX.play("success");
+      } else {
+        SFX.play("click");
+      }
+
+      saveState();
+      renderUI();
+      closeModal();
+    }
+
+    function resetDayDebug() {
+      if (confirm("RESET TODAY'S PROTOCOL? This will keep history.")) {
+        state.today = {};
+        state.todayComplete = false;
+        saveState();
+        renderUI();
+      }
+    }
+
+    // NAVIGATION
+    function nav(view, btn) {
+      SFX.play("click");
+      document
+        .querySelectorAll(".view-section")
+        .forEach((el) => el.classList.add("hidden"));
+      document
+        .getElementById("view-" + view)
+        .classList.remove("hidden");
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach((el) => el.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    // SETTINGS
+    function saveSettings() {
+      const name = document
+        .getElementById("settings-name")
+        .value.trim();
+      let goal = parseInt(
+        document.getElementById("settings-goal").value,
+        10
+      );
+      if (isNaN(goal)) goal = 100;
+      goal = Math.min(Math.max(goal, 10), 150);
+
+      state.profile.name = name;
+      state.profile.goalPct = goal;
+      saveState();
+      SFX.play("success");
+      renderUI();
+      alert("Settings updated for " + (name || "Pilot") + ".");
+    }
+
+    // CHART
+    function initChart() {
+      const ctx = document.getElementById("progressRing").getContext("2d");
+      ringChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          datasets: [
+            {
+              data: [0, 100],
+              backgroundColor: [
+                "#00f3ff",
+                "rgba(0, 243, 255, 0.12)",
+              ],
+              borderWidth: 0,
+              cutout: "78%",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          events: [],
+          plugins: { tooltip: { enabled: false } },
+        },
+      });
+    }
+
+    function updateChart(pct) {
+      if (!ringChart) return;
+      const safePct = Math.max(0, Math.min(pct, 150));
+      ringChart.data.datasets[0].data = [safePct, 150 - safePct];
+      ringChart.data.datasets[0].backgroundColor = [
+        safePct >= (state.profile.goalPct || 100)
+          ? "#0aff60"
+          : "#00f3ff",
+        "rgba(0, 243, 255, 0.12)",
+      ];
+      ringChart.update();
+    }
+  </script>
+</body>
+</html>
